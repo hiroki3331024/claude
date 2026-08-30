@@ -18,11 +18,12 @@ from src.gold.build_gold import GoldBuilder
 
 logger = get_logger("02_incremental_load")
 
+# Databricks Secrets から idToken（アクセストークン）取得
 try:
-    refresh_token = dbutils.secrets.get(scope="jquants", key="refresh_token")
+    id_token = dbutils.secrets.get(scope="jquants", key="id_token")
 except Exception:
     import os
-    refresh_token = os.environ["JQUANTS_REFRESH_TOKEN"]
+    id_token = os.environ["JQUANTS_ID_TOKEN"]
 
 # COMMAND ----------
 # MAGIC %md ## 1. 前回最終ロード日を確認
@@ -59,7 +60,7 @@ if date_from > date_to:
 # MAGIC %md ## 2. 株価データ取得 → Bronze
 
 # COMMAND ----------
-client = JQuantsClient(refresh_token=refresh_token)
+client = JQuantsClient(id_token=id_token)
 bronze_loader = BronzeLoader(spark)
 RAW_PATH = "/dbfs/raw/japan_stocks/prices"
 

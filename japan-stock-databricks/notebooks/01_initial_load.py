@@ -23,12 +23,12 @@ from src.gold.build_gold import GoldBuilder
 
 logger = get_logger("01_initial_load")
 
-# Databricks Secrets から refreshToken 取得
+# Databricks Secrets から idToken（アクセストークン）取得
 try:
-    refresh_token = dbutils.secrets.get(scope="jquants", key="refresh_token")
+    id_token = dbutils.secrets.get(scope="jquants", key="id_token")
 except Exception:
     import os
-    refresh_token = os.environ["JQUANTS_REFRESH_TOKEN"]
+    id_token = os.environ["JQUANTS_ID_TOKEN"]
 
 DATE_FROM = get_date_n_years_ago(3)   # 3年前
 DATE_TO   = get_yesterday()
@@ -39,7 +39,7 @@ logger.info(f"Initial load: {DATE_FROM} → {DATE_TO}")
 # MAGIC %md ## 1. J-Quants API クライアント初期化
 
 # COMMAND ----------
-client = JQuantsClient(refresh_token=refresh_token)
+client = JQuantsClient(id_token=id_token)
 
 # COMMAND ----------
 # MAGIC %md ## 2. 上場銘柄情報取得 → Bronze

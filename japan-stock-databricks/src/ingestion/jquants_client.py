@@ -20,39 +20,14 @@ class JQuantsClient:
 
     BASE_URL = "https://api.jquants.com/v1"
 
-    def __init__(self, refresh_token: str):
+    def __init__(self, id_token: str):
         """
         Args:
-            refresh_token: J-Quantsポータルで取得したAPIキー（refreshToken）
+            id_token: J-Quantsポータルの「アクセストークン」をそのまま渡す
         """
-        self._refresh_token = refresh_token
-        self._id_token: Optional[str] = None
-        self._token_expires_at: float = 0.0
-
-    # ── 認証 ───────────────────────────────────────────────────────────────
-
-    @retry(max_attempts=3, wait_seconds=5)
-    def _get_id_token(self, refresh_token: str) -> str:
-        url = f"{self.BASE_URL}/token/auth_refresh"
-        resp = requests.post(
-            url,
-            params={"refreshtoken": refresh_token},
-            timeout=30,
-        )
-        resp.raise_for_status()
-        token = resp.json()["idToken"]
-        logger.info("ID token acquired")
-        return token
-
-    def _ensure_token(self):
-        if time.time() < self._token_expires_at - 60:
-            return
-        self._id_token = self._get_id_token(self._refresh_token)
-        # ID token の有効期限は 24 時間
-        self._token_expires_at = time.time() + 86400
+        self._id_token = id_token
 
     def _headers(self) -> dict:
-        self._ensure_token()
         return {"Authorization": f"Bearer {self._id_token}"}
 
     # ── API リクエスト共通 ─────────────────────────────────────────────────
