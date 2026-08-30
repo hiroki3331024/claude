@@ -19,12 +19,10 @@ from src.gold.build_gold import GoldBuilder
 logger = get_logger("02_incremental_load")
 
 try:
-    email    = dbutils.secrets.get(scope="jquants", key="email")
-    password = dbutils.secrets.get(scope="jquants", key="password")
+    refresh_token = dbutils.secrets.get(scope="jquants", key="refresh_token")
 except Exception:
     import os
-    email    = os.environ["JQUANTS_EMAIL"]
-    password = os.environ["JQUANTS_PASSWORD"]
+    refresh_token = os.environ["JQUANTS_REFRESH_TOKEN"]
 
 # COMMAND ----------
 # MAGIC %md ## 1. 前回最終ロード日を確認
@@ -61,7 +59,7 @@ if date_from > date_to:
 # MAGIC %md ## 2. 株価データ取得 → Bronze
 
 # COMMAND ----------
-client = JQuantsClient(email=email, password=password)
+client = JQuantsClient(refresh_token=refresh_token)
 bronze_loader = BronzeLoader(spark)
 RAW_PATH = "/dbfs/raw/japan_stocks/prices"
 
