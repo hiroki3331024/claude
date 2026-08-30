@@ -1,0 +1,23 @@
+jquants:
+  base_url: "https://api.jquants.com/v1"
+  email: "${JQUANTS_EMAIL}"
+  password: "${JQUANTS_PASSWORD}"
+  initial_load_years: 3
+
+databricks:
+  catalog: "main"
+  schema_bronze: "bronze_stocks"
+  schema_silver: "silver_stocks"
+  schema_gold: "gold_stocks"
+  checkpoint_base: "/dbfs/checkpoints/japan_stocks"
+  raw_data_path: "/dbfs/raw/japan_stocks"
+
+pipeline:
+  batch_size: 50
+  retry_max: 3
+  retry_wait_seconds: 5
+
+gold:
+  moving_average_windows: [5, 25, 75]
+  volatility_window: 20
+  return_windows: [1, 5, 21]

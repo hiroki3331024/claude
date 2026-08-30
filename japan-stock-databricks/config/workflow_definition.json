@@ -1,0 +1,53 @@
+{
+  "name": "japan_stock_daily_pipeline",
+  "description": "J-Quants → Bronze → Silver → Gold 日次パイプライン",
+  "schedule": {
+    "quartz_cron_expression": "0 0 7 * * ?",
+    "timezone_id": "Asia/Tokyo",
+    "pause_status": "UNPAUSED"
+  },
+  "tasks": [
+    {
+      "task_key": "run_pipeline",
+      "description": "初回/増分ロード自動判定 → 実行",
+      "notebook_task": {
+        "notebook_path": "/Workspace/Repos/<your-github-username>/japan-stock-databricks/notebooks/03_run_pipeline",
+        "source": "WORKSPACE",
+        "base_parameters": {}
+      },
+      "new_cluster": {
+        "spark_version": "15.4.x-scala2.12",
+        "node_type_id": "Standard_DS3_v2",
+        "num_workers": 0,
+        "spark_conf": {
+          "spark.master": "local[*, 4]",
+          "spark.databricks.cluster.profile": "singleNode"
+        },
+        "custom_tags": {
+          "ResourceClass": "SingleNode"
+        },
+        "spark_env_vars": {
+          "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+        },
+        "libraries": [
+          {"pypi": {"package": "jquants-api-client>=0.9.0"}},
+          {"pypi": {"package": "python-dateutil>=2.8"}},
+          {"pypi": {"package": "pyyaml>=6.0"}},
+          {"pypi": {"package": "requests>=2.28"}}
+        ]
+      },
+      "timeout_seconds": 7200,
+      "max_retries": 1,
+      "min_retry_interval_millis": 300000
+    }
+  ],
+  "max_concurrent_runs": 1,
+  "email_notifications": {
+    "on_failure": ["<your-email@example.com>"],
+    "no_alert_for_skipped_runs": true
+  },
+  "tags": {
+    "project": "japan-stock-databricks",
+    "layer": "all"
+  }
+}

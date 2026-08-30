@@ -1,0 +1,1418 @@
+<title>Japan Stock Databricks — セットアップ手順書</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+  /* ── Token layer ─────────────────────────────────────── */
+  :root {
+    --bg:           #F0F6FF;
+    --bg-surface:   #FFFFFF;
+    --bg-code:      #E4EDF8;
+    --bg-note:      #FFF8E8;
+    --border:       #C8D8EC;
+    --border-code:  #B3C8E0;
+    --text-primary: #0D1F35;
+    --text-body:    #2C4057;
+    --text-muted:   #5A7A96;
+    --accent:       #2F80ED;
+    --accent-dim:   #1A5FBF;
+    --accent-bg:    #E0EDFF;
+    --warn:         #F5A623;
+    --warn-bg:      #FFF3DC;
+    --success:      #27AE60;
+    --success-bg:   #E0F5EA;
+    --nav-bg:       #0B1929;
+    --nav-text:     #7A9BB5;
+    --nav-active:   #2F80ED;
+    --nav-hover:    #AECCE8;
+    --step-num:     #2F80ED;
+    --tag-bg:       #DDE9F7;
+    --tag-text:     #1A4F82;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:           #080F1A;
+      --bg-surface:   #0F1D2E;
+      --bg-code:      #0A1628;
+      --bg-note:      #1A1500;
+      --border:       #1E3450;
+      --border-code:  #1A3060;
+      --text-primary: #DEEEFF;
+      --text-body:    #9BB8D4;
+      --text-muted:   #5A7A96;
+      --accent:       #4D9EFF;
+      --accent-dim:   #2F80ED;
+      --accent-bg:    #0D2040;
+      --warn:         #F5A623;
+      --warn-bg:      #1A1000;
+      --success:      #2ECC71;
+      --success-bg:   #071A0F;
+      --nav-bg:       #060E18;
+      --nav-text:     #4A6A85;
+      --nav-active:   #4D9EFF;
+      --nav-hover:    #7AA5C8;
+      --step-num:     #4D9EFF;
+      --tag-bg:       #0D2040;
+      --tag-text:     #7ABAFF;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg:           #080F1A;
+    --bg-surface:   #0F1D2E;
+    --bg-code:      #0A1628;
+    --bg-note:      #1A1500;
+    --border:       #1E3450;
+    --border-code:  #1A3060;
+    --text-primary: #DEEEFF;
+    --text-body:    #9BB8D4;
+    --text-muted:   #5A7A96;
+    --accent:       #4D9EFF;
+    --accent-dim:   #2F80ED;
+    --accent-bg:    #0D2040;
+    --warn:         #F5A623;
+    --warn-bg:      #1A1000;
+    --success:      #2ECC71;
+    --success-bg:   #071A0F;
+    --nav-bg:       #060E18;
+    --nav-text:     #4A6A85;
+    --nav-active:   #4D9EFF;
+    --nav-hover:    #7AA5C8;
+    --step-num:     #4D9EFF;
+    --tag-bg:       #0D2040;
+    --tag-text:     #7ABAFF;
+  }
+
+  /* ── Reset ───────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-body);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ── Left nav ────────────────────────────────────────── */
+  nav {
+    position: fixed;
+    top: 0; left: 0;
+    width: 240px;
+    height: 100vh;
+    background: var(--nav-bg);
+    overflow-y: auto;
+    padding: 32px 0 48px;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    border-right: 1px solid #0D1F35;
+  }
+
+  .nav-logo {
+    padding: 0 20px 28px;
+    border-bottom: 1px solid #1A2D42;
+    margin-bottom: 20px;
+  }
+
+  .nav-logo-mark {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #3B5C78;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .nav-logo-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #A8CCEC;
+    line-height: 1.3;
+  }
+
+  .nav-section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #2A4560;
+    padding: 16px 20px 6px;
+    display: block;
+  }
+
+  nav a {
+    display: block;
+    padding: 6px 20px;
+    font-size: 13px;
+    color: var(--nav-text);
+    text-decoration: none;
+    transition: color 0.15s, padding-left 0.15s;
+    border-left: 2px solid transparent;
+  }
+
+  nav a:hover { color: var(--nav-hover); }
+  nav a.active {
+    color: var(--nav-active);
+    border-left-color: var(--nav-active);
+    padding-left: 18px;
+    background: rgba(47, 128, 237, 0.06);
+  }
+
+  .theme-toggle {
+    margin-top: auto;
+    padding: 16px 20px 0;
+    border-top: 1px solid #1A2D42;
+  }
+
+  .theme-btn {
+    background: #1A2D42;
+    border: none;
+    color: #5A7A96;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: background 0.15s, color 0.15s;
+  }
+  .theme-btn:hover { background: #243D5A; color: #7ABAFF; }
+
+  /* ── Main content ────────────────────────────────────── */
+  main {
+    margin-left: 240px;
+    flex: 1;
+    max-width: 920px;
+    padding: 56px 52px 100px;
+  }
+
+  /* ── Page header ─────────────────────────────────────── */
+  .page-header {
+    margin-bottom: 56px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.15;
+    text-wrap: balance;
+    margin-bottom: 16px;
+  }
+
+  .page-subtitle {
+    font-size: 16px;
+    color: var(--text-muted);
+    max-width: 60ch;
+    line-height: 1.6;
+  }
+
+  .page-meta {
+    display: flex;
+    gap: 16px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    padding: 3px 9px;
+    border-radius: 3px;
+    letter-spacing: 0.03em;
+  }
+
+  /* ── Sections ────────────────────────────────────────── */
+  section {
+    margin-bottom: 64px;
+    scroll-margin-top: 32px;
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-wrap: balance;
+  }
+
+  .h2-icon {
+    width: 28px; height: 28px;
+    background: var(--accent-bg);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 28px 0 10px;
+  }
+
+  p { margin-bottom: 14px; max-width: 72ch; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── Steps ───────────────────────────────────────────── */
+  .steps { display: flex; flex-direction: column; gap: 24px; }
+
+  .step {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 0 20px;
+  }
+
+  .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--step-num);
+    background: var(--accent-bg);
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid var(--accent);
+    margin-top: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .step-body { min-width: 0; }
+
+  .step-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+
+  .step-desc {
+    font-size: 14px;
+    color: var(--text-body);
+    max-width: 68ch;
+    margin-bottom: 0;
+  }
+
+  /* ── Code blocks ─────────────────────────────────────── */
+  .code-block {
+    background: var(--bg-code);
+    border: 1px solid var(--border-code);
+    border-radius: 6px;
+    margin: 14px 0;
+    overflow: hidden;
+  }
+
+  .code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border-code);
+    background: rgba(0,0,0,0.04);
+  }
+
+  .code-lang {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .copy-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    background: none;
+    border: 1px solid var(--border-code);
+    color: var(--text-muted);
+    padding: 3px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .copy-btn.copied { color: var(--success); border-color: var(--success); }
+
+  pre {
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--text-primary);
+    tab-size: 2;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    background: var(--bg-code);
+    border: 1px solid var(--border-code);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--accent);
+  }
+
+  pre code {
+    background: none; border: none; padding: 0;
+    color: inherit; font-size: inherit;
+  }
+
+  /* ── Callouts ────────────────────────────────────────── */
+  .callout {
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 16px 0;
+    border-left: 3px solid;
+    font-size: 14px;
+    max-width: 72ch;
+  }
+
+  .callout-warn {
+    background: var(--warn-bg);
+    border-color: var(--warn);
+    color: var(--text-body);
+  }
+
+  .callout-info {
+    background: var(--accent-bg);
+    border-color: var(--accent);
+    color: var(--text-body);
+  }
+
+  .callout-success {
+    background: var(--success-bg);
+    border-color: var(--success);
+    color: var(--text-body);
+  }
+
+  .callout-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+
+  .callout-warn  .callout-title { color: var(--warn); }
+  .callout-info  .callout-title { color: var(--accent); }
+  .callout-success .callout-title { color: var(--success); }
+
+  /* ── Tables ──────────────────────────────────────────── */
+  .table-wrap { overflow-x: auto; margin: 16px 0; }
+
+  table {
+    border-collapse: collapse;
+    font-size: 13.5px;
+    min-width: 480px;
+    width: 100%;
+  }
+
+  th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 8px 16px;
+    background: var(--bg-code);
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-body);
+    vertical-align: top;
+  }
+
+  td code { font-size: 11.5px; }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(47, 128, 237, 0.03); }
+
+  /* ── Architecture diagram ────────────────────────────── */
+  .arch-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 24px 0;
+    flex-wrap: wrap;
+    row-gap: 12px;
+  }
+
+  .arch-node {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 16px;
+    min-width: 110px;
+    text-align: center;
+  }
+
+  .arch-node-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .arch-node-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .arch-node.accent {
+    border-color: var(--accent);
+    background: var(--accent-bg);
+  }
+  .arch-node.accent .arch-node-name { color: var(--accent); }
+
+  .arch-arrow {
+    color: var(--text-muted);
+    padding: 0 8px;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  /* ── Section divider ─────────────────────────────────── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 48px 0;
+  }
+
+  /* ── Checklist ───────────────────────────────────────── */
+  .checklist { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .checklist li {
+    display: flex; gap: 10px; align-items: flex-start;
+    font-size: 14px; color: var(--text-body);
+  }
+  .checklist li::before {
+    content: '□';
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── Responsive ──────────────────────────────────────── */
+  @media (max-width: 768px) {
+    nav { display: none; }
+    main { margin-left: 0; padding: 32px 20px 80px; }
+    h1 { font-size: 26px; }
+    .arch-flow { flex-direction: column; align-items: flex-start; }
+    .arch-arrow { transform: rotate(90deg); padding: 4px 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+
+<!-- ── Navigation ─────────────────────────────────────── -->
+<nav id="sidebar">
+  <div class="nav-logo">
+    <span class="nav-logo-mark">Databricks</span>
+    <span class="nav-logo-title">Japan Stock<br>Pipeline</span>
+  </div>
+
+  <span class="nav-section-label">はじめに</span>
+  <a href="#overview">概要・アーキテクチャ</a>
+  <a href="#prereqs">前提条件</a>
+
+  <span class="nav-section-label">セットアップ</span>
+  <a href="#jquants">J-Quants API</a>
+  <a href="#databricks">Databricks 環境</a>
+  <a href="#secrets">シークレット登録</a>
+  <a href="#repo">リポジトリ連携</a>
+  <a href="#cluster">クラスター設定</a>
+
+  <span class="nav-section-label">実行</span>
+  <a href="#initial-load">初回ロード</a>
+  <a href="#workflow">Workflow 設定</a>
+  <a href="#validation">データ検証</a>
+
+  <span class="nav-section-label">可視化</span>
+  <a href="#dashboard">Dashboard 作成</a>
+  <a href="#genie">Genie 設定</a>
+
+  <span class="nav-section-label">運用</span>
+  <a href="#troubleshooting">トラブルシューティング</a>
+  <a href="#reference">テーブルリファレンス</a>
+
+  <div class="theme-toggle">
+    <button class="theme-btn" onclick="toggleTheme()">◐ テーマ切替</button>
+  </div>
+</nav>
+
+<!-- ── Main ───────────────────────────────────────────── -->
+<main>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <span class="page-eyebrow">セットアップ &amp; 実行手順書</span>
+    <h1>Japan Stock Databricks Pipeline</h1>
+    <p class="page-subtitle">
+      J-Quants API から日本株データを取得し、Databricks Free Edition 上で
+      Bronze → Silver → Gold の Medallion Architecture を構築する手順書です。
+    </p>
+    <div class="page-meta">
+      <span class="tag">Databricks Free Edition</span>
+      <span class="tag">J-Quants 無料プラン</span>
+      <span class="tag">Delta Lake</span>
+      <span class="tag">Unity Catalog</span>
+    </div>
+  </div>
+
+  <!-- ── 1. 概要 ──────────────────────────────────────── -->
+  <section id="overview">
+    <h2><span class="h2-icon">🗺</span> 概要・アーキテクチャ</h2>
+    <p>
+      このパイプラインは日本株の OHLCV データを J-Quants API から定期取得し、
+      Databricks の Medallion Architecture (Bronze / Silver / Gold) で管理します。
+      Gold テーブルには移動平均・リターン・ボラティリティ等のテクニカル指標を付与し、
+      SQL Dashboard と Genie (AI によるデータ探索) で可視化します。
+    </p>
+
+    <div class="arch-flow">
+      <div class="arch-node">
+        <span class="arch-node-label">Source</span>
+        <span class="arch-node-name">J-Quants API</span>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <span class="arch-node-label">Raw</span>
+        <span class="arch-node-name">DBFS JSON</span>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <span class="arch-node-label">Layer 1</span>
+        <span class="arch-node-name">Bronze</span>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <span class="arch-node-label">Layer 2</span>
+        <span class="arch-node-name">Silver + DQ</span>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node accent">
+        <span class="arch-node-label">Layer 3</span>
+        <span class="arch-node-name">Gold</span>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <span class="arch-node-label">Analytics</span>
+        <span class="arch-node-name">Dashboard / Genie</span>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>レイヤー</th><th>テーブル</th><th>説明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>Bronze</code></td><td><code>bronze_stocks.daily_quotes</code></td><td>J-Quants 取得そのままの Raw データ</td></tr>
+          <tr><td><code>Bronze</code></td><td><code>bronze_stocks.listed_info</code></td><td>上場銘柄マスタ (Raw)</td></tr>
+          <tr><td><code>Silver</code></td><td><code>silver_stocks.daily_quotes</code></td><td>型変換・クレンジング済み株価</td></tr>
+          <tr><td><code>Silver</code></td><td><code>silver_stocks.dq_log</code></td><td>Data Quality チェック結果ログ</td></tr>
+          <tr><td><code>Gold</code></td><td><code>gold_stocks.stock_with_master</code></td><td>指標計算 + 銘柄マスタ結合</td></tr>
+          <tr><td><code>Gold</code></td><td><code>gold_stocks.sector_summary</code></td><td>セクター別日次集計</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── 2. 前提条件 ───────────────────────────────────── -->
+  <section id="prereqs">
+    <h2><span class="h2-icon">✅</span> 前提条件</h2>
+
+    <div class="callout callout-info">
+      <div class="callout-title">確認事項</div>
+      作業開始前に以下がすべて揃っていることを確認してください。
+    </div>
+
+    <ul class="checklist">
+      <li>J-Quants アカウント (無料登録、メール認証済み)</li>
+      <li>Databricks Free Edition アカウント (<a href="https://www.databricks.com/try-databricks" style="color:var(--accent)">databricks.com/try-databricks</a>)</li>
+      <li>GitHub アカウントとこのリポジトリへのアクセス権</li>
+      <li>Python 3.9 以上 (ローカルテスト用、任意)</li>
+    </ul>
+
+    <div class="callout callout-warn">
+      <div class="callout-title">制限事項</div>
+      J-Quants <strong>Free プラン</strong>では直近3年分の株価データのみ取得できます。
+      Databricks Free Edition はコンピュートリソースに制限があるため、
+      初回ロードは数十分〜1時間程度かかる場合があります。
+    </div>
+  </section>
+
+  <!-- ── 3. J-Quants ──────────────────────────────────── -->
+  <section id="jquants">
+    <h2><span class="h2-icon">🔑</span> J-Quants API の設定</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">アカウント登録</div>
+          <p class="step-desc">
+            <a href="https://jpx-jquants.com" style="color:var(--accent)">jpx-jquants.com</a> にアクセスし、
+            「無料で使ってみる」から新規登録します。登録後、メール認証リンクをクリックして有効化してください。
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">プランの確認</div>
+          <p class="step-desc">
+            ログイン後のマイページで「Free」プランであることを確認します。
+            Free プランで利用できる主なエンドポイントは以下の通りです。
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>エンドポイント</th><th>内容</th><th>制限</th></tr></thead>
+              <tbody>
+                <tr><td><code>/listed/info</code></td><td>上場銘柄一覧</td><td>制限なし</td></tr>
+                <tr><td><code>/prices/daily_quotes</code></td><td>日次株価 OHLCV</td><td>直近3年分</td></tr>
+                <tr><td><code>/fins/statements</code></td><td>財務情報</td><td>直近4件</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">認証情報のメモ</div>
+          <p class="step-desc">
+            登録したメールアドレスとパスワードをメモしておきます。
+            次のステップで Databricks Secrets に登録します。
+          </p>
+          <div class="callout callout-warn">
+            <div class="callout-title">セキュリティ注意</div>
+            パスワードをコードやノートブック内に直書きしないでください。
+            必ず Databricks Secrets を経由します。
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 4. Databricks 環境 ────────────────────────────── -->
+  <section id="databricks">
+    <h2><span class="h2-icon">⚙️</span> Databricks 環境のセットアップ</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">Workspace にログイン</div>
+          <p class="step-desc">
+            Free Edition では自動的に <code>community.cloud.databricks.com</code> のWorkspace が払い出されます。
+            メールに届いたリンクからログインしてください。
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">Unity Catalog の確認</div>
+          <p class="step-desc">
+            左メニューの <strong>Data</strong> &gt; <strong>Catalog</strong> を開き、
+            <code>main</code> カタログが存在することを確認します。
+            このプロジェクトはデフォルト Catalog として <code>main</code> を使用します。
+          </p>
+          <div class="callout callout-info">
+            <div class="callout-title">Unity Catalog が無効の場合</div>
+            <code>config/config.yml</code> の <code>catalog: "main"</code> を
+            <code>catalog: "hive_metastore"</code> に変更してください。
+            ただし Unity Catalog の利用を強く推奨します。
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 5. Secrets ──────────────────────────────────── -->
+  <section id="secrets">
+    <h2><span class="h2-icon">🔒</span> Databricks Secrets の登録</h2>
+
+    <p>
+      認証情報は Databricks CLI を使って Secret Scope に登録します。
+      クラスターやノートブックから <code>dbutils.secrets.get()</code> で安全に取得できます。
+    </p>
+
+    <h3>Databricks CLI のインストール</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">shell</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code>pip install databricks-cli
+
+# Workspace URL と Token で認証
+databricks configure --token
+# Host: https://&lt;your-workspace&gt;.azuredatabricks.net
+# Token: (Databricks UI の User Settings > Access Tokens で生成)</code></pre>
+    </div>
+
+    <h3>Secret Scope と Secret の作成</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">shell</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code># Scope 作成 (初回のみ)
+databricks secrets create-scope --scope jquants
+
+# J-Quants 認証情報を登録
+databricks secrets put --scope jquants --key email
+# → プロンプトに メールアドレス を入力
+
+databricks secrets put --scope jquants --key password
+# → プロンプトに パスワード を入力
+
+# 確認
+databricks secrets list --scope jquants</code></pre>
+    </div>
+
+    <div class="callout callout-success">
+      <div class="callout-title">登録後の確認</div>
+      ノートブックのセルで <code>dbutils.secrets.get(scope="jquants", key="email")</code> を実行し、
+      <code>[REDACTED]</code> と表示されれば正常です（値は直接表示されません）。
+    </div>
+  </section>
+
+  <!-- ── 6. リポジトリ連携 ─────────────────────────────── -->
+  <section id="repo">
+    <h2><span class="h2-icon">📁</span> GitHub リポジトリの連携</h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">GitHub Personal Access Token の生成</div>
+          <p class="step-desc">
+            GitHub &gt; Settings &gt; Developer settings &gt; Personal access tokens &gt; Tokens (classic) から
+            <code>repo</code> スコープを持つトークンを生成します。
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">Databricks Repos で連携</div>
+          <p class="step-desc">
+            左メニュー <strong>Workspace</strong> &gt; <strong>Repos</strong> &gt; <strong>Add Repo</strong> を選択し、
+            このリポジトリの URL を入力します。
+          </p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">url</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code>https://github.com/&lt;your-username&gt;/japan-stock-databricks.git</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">ノートブック内のパスを修正</div>
+          <p class="step-desc">
+            <code>notebooks/01_initial_load.py</code> の冒頭にある <code>sys.path.insert</code> の
+            パスをあなたの Repo パスに合わせて変更します。
+          </p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">python</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code># &lt;your-repo-path&gt; を実際のパスに変更
+sys.path.insert(0, "/Workspace/Repos/hiroki.yamamoto3646@gmail.com/japan-stock-databricks")</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 7. クラスター ─────────────────────────────────── -->
+  <section id="cluster">
+    <h2><span class="h2-icon">⚡</span> クラスター設定</h2>
+
+    <p>
+      Databricks Free Edition では <strong>Single Node クラスター</strong>を使います。
+      以下の設定で作成してください。
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>設定項目</th><th>推奨値</th></tr></thead>
+        <tbody>
+          <tr><td>Cluster mode</td><td><code>Single Node</code></td></tr>
+          <tr><td>Databricks Runtime</td><td><code>15.4 LTS (Scala 2.12, Spark 3.5)</code></td></tr>
+          <tr><td>Node type</td><td><code>Standard_DS3_v2</code> (または Free Edition デフォルト)</td></tr>
+          <tr><td>Terminate after</td><td><code>30 minutes</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>ライブラリのインストール</h3>
+    <p>クラスター作成後、<strong>Libraries</strong> タブから以下を PyPI でインストールします。</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">pypi packages</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code>jquants-api-client>=0.9.0
+python-dateutil>=2.8.2
+pyyaml>=6.0
+requests>=2.28</code></pre>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── 8. 初回ロード ─────────────────────────────────── -->
+  <section id="initial-load">
+    <h2><span class="h2-icon">🚀</span> 初回ロードの実行</h2>
+
+    <div class="callout callout-warn">
+      <div class="callout-title">実行時間の目安</div>
+      初回ロードでは3年分（約750営業日 × 全銘柄）のデータを取得します。
+      J-Quants API のレートリミットと Databricks Free Edition の性能によって
+      <strong>30〜90分</strong>かかる場合があります。
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">ノートブックを開く</div>
+          <p class="step-desc">
+            Workspace &gt; Repos &gt; japan-stock-databricks &gt;
+            <code>notebooks/01_initial_load.py</code> を開きます。
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">クラスターを接続</div>
+          <p class="step-desc">
+            ノートブック右上の <strong>Detached</strong> ドロップダウンから
+            作成したクラスターを選択して接続します。
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">Run All を実行</div>
+          <p class="step-desc">
+            上部の <strong>Run all</strong> ボタンをクリックします。
+            各セルが順番に実行され、完了すると最後のセルに結果サマリーが表示されます。
+          </p>
+          <div class="callout callout-success">
+            <div class="callout-title">成功時の表示例</div>
+            <pre style="background:none;padding:0;font-size:12px;">✅ Initial load finished!
+   Period   : 2022-08-30 → 2025-08-29
+   Records  : 3,847,200
+   Bronze   : main.bronze_stocks.daily_quotes
+   Silver   : main.silver_stocks.daily_quotes
+   Gold     : main.gold_stocks.stock_with_master</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 9. Workflow ──────────────────────────────────── -->
+  <section id="workflow">
+    <h2><span class="h2-icon">🔄</span> Workflow による日次自動化</h2>
+
+    <p>
+      毎朝 07:00 JST に増分ロードを自動実行する Workflow を作成します。
+      <code>config/workflow_definition.json</code> を参考に手動で設定します。
+    </p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">Workflows を開く</div>
+          <p class="step-desc">
+            左メニューの <strong>Workflows</strong> &gt; <strong>Create job</strong> をクリックします。
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">タスクの設定</div>
+          <p class="step-desc">以下の通り設定します。</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>項目</th><th>値</th></tr></thead>
+              <tbody>
+                <tr><td>Task name</td><td><code>run_pipeline</code></td></tr>
+                <tr><td>Type</td><td><code>Notebook</code></td></tr>
+                <tr><td>Notebook path</td><td><code>/Workspace/Repos/…/notebooks/03_run_pipeline</code></td></tr>
+                <tr><td>Cluster</td><td>作成したクラスター</td></tr>
+                <tr><td>Timeout</td><td><code>7200 秒</code></td></tr>
+                <tr><td>Max retries</td><td><code>1</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">スケジュールの設定</div>
+          <p class="step-desc">
+            <strong>Schedules &amp; Triggers</strong> タブで <strong>Add schedule</strong> をクリックし、
+            以下の Cron 式を設定します。
+          </p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">quartz cron (JST)</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code>0 0 7 * * ?
+# 毎日 07:00 JST (= 22:00 UTC 前日) に実行
+# Timezone: Asia/Tokyo</code></pre>
+          </div>
+          <div class="callout callout-info">
+            <div class="callout-title">ノート</div>
+            <code>03_run_pipeline.py</code> は Bronze テーブルの有無を自動判定し、
+            初回なら <code>01_initial_load</code>、それ以降は <code>02_incremental_load</code> を呼び出します。
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <div class="step-title">メール通知の設定 (任意)</div>
+          <p class="step-desc">
+            <strong>Email notifications</strong> に失敗時の通知先メールアドレスを入力します。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 10. データ検証 ────────────────────────────────── -->
+  <section id="validation">
+    <h2><span class="h2-icon">🔍</span> データ検証</h2>
+
+    <p>
+      ロード完了後に <code>sql/validation_queries.sql</code> のクエリで
+      データの正常性を確認します。<strong>SQL Editor</strong> に貼り付けて実行してください。
+    </p>
+
+    <h3>基本確認: レコード数と最終日付</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">sql</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code>SELECT
+  MAX(Date)            AS last_loaded_date,
+  COUNT(DISTINCT Date) AS loaded_days,
+  COUNT(DISTINCT Code) AS stock_count,
+  COUNT(*)             AS total_records
+FROM main.bronze_stocks.daily_quotes;</code></pre>
+    </div>
+
+    <h3>DQ チェック結果の確認</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">sql</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code>SELECT check_name,
+  CASE WHEN passed THEN '✅ PASS' ELSE '❌ FAIL' END AS status,
+  detail, checked_at
+FROM main.silver_stocks.dq_log
+ORDER BY checked_at DESC
+LIMIT 20;</code></pre>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── 11. Dashboard ────────────────────────────────── -->
+  <section id="dashboard">
+    <h2><span class="h2-icon">📊</span> Dashboard の作成</h2>
+
+    <div class="callout callout-info">
+      <div class="callout-title">手動作成が必要</div>
+      Databricks SQL Dashboard はコードによる自動作成が Free Edition では難しいため、
+      以下の手順で手動作成してください。
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">SQL Editor でクエリを保存</div>
+          <p class="step-desc">
+            左メニュー <strong>SQL Editor</strong> を開き、
+            <code>sql/dashboard_queries.sql</code> 内の各クエリをそれぞれ新しいタブで貼り付け、
+            わかりやすい名前で保存します。
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>クエリ名の例</th><th>用途</th></tr></thead>
+              <tbody>
+                <tr><td><code>mkt_summary</code></td><td>KPI カード (当日の市場概況)</td></tr>
+                <tr><td><code>sector_return</code></td><td>セクター別リターン棒グラフ</td></tr>
+                <tr><td><code>stock_timeseries</code></td><td>個別銘柄の時系列チャート</td></tr>
+                <tr><td><code>return_ranking</code></td><td>騰落率ランキングテーブル</td></tr>
+                <tr><td><code>volatility_scatter</code></td><td>ボラティリティ vs リターン散布図</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">Dashboard を作成</div>
+          <p class="step-desc">
+            左メニュー <strong>Dashboards</strong> &gt; <strong>Create Dashboard</strong> を選択。
+            各クエリをウィジェットとして追加し、Visualization タイプを設定します。
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ウィジェット</th><th>Visualization</th><th>軸設定</th></tr></thead>
+              <tbody>
+                <tr><td>市場概況</td><td>Counter</td><td>各 KPI を個別 Counter に</td></tr>
+                <tr><td>セクター別リターン</td><td>Bar Chart</td><td>X: sector, Y: return_1d</td></tr>
+                <tr><td>銘柄時系列</td><td>Line Chart</td><td>X: trade_date, Y: close, ma25</td></tr>
+                <tr><td>騰落ランキング</td><td>Table</td><td>全カラム表示</td></tr>
+                <tr><td>ボラ vs リターン</td><td>Scatter Chart</td><td>X: volatility_20d, Y: return_5d, Size: turnover</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">パラメーターの設定</div>
+          <p class="step-desc">
+            銘柄時系列チャートのクエリは <code>{{stock_code}}</code> パラメーターを使っています。
+            Dashboard 上でテキストボックスウィジェットを追加し、
+            <code>stock_code</code> パラメーターに紐付けてください。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 12. Genie ─────────────────────────────────────── -->
+  <section id="genie">
+    <h2><span class="h2-icon">🤖</span> Genie の設定</h2>
+
+    <p>
+      Databricks Genie を使うと、自然言語で Gold テーブルにクエリを投げられます。
+    </p>
+
+    <div class="callout callout-warn">
+      <div class="callout-title">Genie の利用可否</div>
+      Genie は Databricks の上位プランで提供されています。
+      Free Edition では利用できない場合があります。
+      利用できない場合は SQL Editor でのクエリ検索で代替してください。
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-body">
+          <div class="step-title">Genie Space の作成</div>
+          <p class="step-desc">
+            左メニュー <strong>Genie</strong> &gt; <strong>New Genie Space</strong> を選択します。
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-body">
+          <div class="step-title">データセットの登録</div>
+          <p class="step-desc">
+            <strong>Add Data</strong> から以下のテーブルを追加します。
+          </p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">tables</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code>main.gold_stocks.stock_with_master
+main.gold_stocks.sector_summary</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-body">
+          <div class="step-title">テーブルの説明文を追加</div>
+          <p class="step-desc">
+            Genie が質問を正確に理解できるよう、各テーブルと主要カラムに説明を追加します。
+          </p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">テーブル説明例 (stock_with_master)</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code>日本株の日次株価データにテクニカル指標と銘柄マスタを結合したゴールドテーブルです。
+- trade_date: 取引日 (日付型)
+- code: 銘柄コード (例: 7203 = トヨタ)
+- company_name: 銘柄名 (日本語)
+- sector17_name: 17業種区分 (例: 自動車・輸送機)
+- close: 権利修正済み終値 (円)
+- return_1d: 1日リターン (%)
+- return_5d: 5営業日リターン (%)
+- ma5, ma25, ma75: 5日・25日・75日移動平均
+- volatility_20d: 20日ボラティリティ (標準偏差)
+- turnover_value: 売買代金 (円)</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-body">
+          <div class="step-title">質問例で動作確認</div>
+          <p class="step-desc">以下のような自然言語でデータを探索できます。</p>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-lang">質問例</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code>「昨日の騰落率上位10銘柄を教えて」
+「自動車セクターの過去1ヶ月の平均リターンは？」
+「ボラティリティが最も高い銘柄TOP5を出して」
+「トヨタの直近3ヶ月の株価推移を見せて」</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── 13. トラブルシューティング ─────────────────────── -->
+  <section id="troubleshooting">
+    <h2><span class="h2-icon">🛠</span> トラブルシューティング</h2>
+
+    <h3>J-Quants 認証エラー (401 Unauthorized)</h3>
+    <div class="callout callout-warn">
+      <div class="callout-title">原因と対処</div>
+      <p><strong>原因:</strong> Secret の登録内容が誤っているか、J-Quants のパスワードが変更された。</p>
+      <p style="margin-top:8px"><strong>対処:</strong> <code>databricks secrets put --scope jquants --key password</code> で再登録してください。</p>
+    </div>
+
+    <h3>Bronze テーブルが作成されない</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">確認コマンド</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code># ノートブックのセルで実行
+spark.sql("SHOW SCHEMAS IN main").show()
+spark.sql("SHOW TABLES IN main.bronze_stocks").show()</code></pre>
+    </div>
+    <p>
+      スキーマがない場合は <code>sql/create_schemas.sql</code> を SQL Editor で実行して
+      スキーマを作成してください。
+    </p>
+
+    <h3>Gold テーブルの指標が全て null</h3>
+    <p>
+      Silver テーブルのレコード数が不足しています。移動平均には最低 MA のウィンドウ日数
+      (例: MA75 なら 75 日以上) のデータが必要です。
+      初回ロードが完全に完了しているか確認してください。
+    </p>
+
+    <h3>DQ チェックが FAIL する</h3>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">sql</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code>-- 失敗した銘柄・日付の特定
+SELECT trade_date, code, close, volume
+FROM main.silver_stocks.daily_quotes
+WHERE close IS NULL OR close <= 0
+ORDER BY trade_date DESC
+LIMIT 20;</code></pre>
+    </div>
+    <p>
+      J-Quants 側でデータ未配信の銘柄や休場日が混入している場合があります。
+      少数であれば正常範囲です。<code>data_quality.py</code> の
+      <code>fail_on_error=False</code> に変更してパイプラインを継続させることもできます。
+    </p>
+
+    <h3>Out of Memory エラー</h3>
+    <div class="callout callout-warn">
+      <div class="callout-title">Free Edition のリソース制限</div>
+      Gold テーブルの Window 関数計算はメモリを大量消費します。
+      初回ロード時に OOM が発生した場合は、Gold 構築を日付範囲を区切って
+      段階的に実行してください。
+    </div>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">python (ノートブックで実行)</span>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code># Spark の設定でシャッフルパーティションを削減
+spark.conf.set("spark.sql.shuffle.partitions", "8")</code></pre>
+    </div>
+  </section>
+
+  <!-- ── 14. テーブルリファレンス ─────────────────────── -->
+  <section id="reference">
+    <h2><span class="h2-icon">📋</span> テーブルリファレンス</h2>
+
+    <h3>gold_stocks.stock_with_master — 主要カラム</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>カラム名</th><th>型</th><th>説明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>trade_date</code></td><td>DATE</td><td>取引日</td></tr>
+          <tr><td><code>code</code></td><td>STRING</td><td>銘柄コード (4桁数字)</td></tr>
+          <tr><td><code>company_name</code></td><td>STRING</td><td>銘柄名 (日本語)</td></tr>
+          <tr><td><code>sector17_name</code></td><td>STRING</td><td>17業種区分名</td></tr>
+          <tr><td><code>market_name</code></td><td>STRING</td><td>市場区分 (プライム/スタンダード/グロース)</td></tr>
+          <tr><td><code>close</code></td><td>DOUBLE</td><td>権利修正済み終値 (円)</td></tr>
+          <tr><td><code>volume</code></td><td>DOUBLE</td><td>権利修正済み出来高</td></tr>
+          <tr><td><code>turnover_value</code></td><td>DOUBLE</td><td>売買代金 (円)</td></tr>
+          <tr><td><code>ma5</code></td><td>DOUBLE</td><td>5日移動平均</td></tr>
+          <tr><td><code>ma25</code></td><td>DOUBLE</td><td>25日移動平均</td></tr>
+          <tr><td><code>ma75</code></td><td>DOUBLE</td><td>75日移動平均</td></tr>
+          <tr><td><code>return_1d</code></td><td>DOUBLE</td><td>前日比リターン (%)</td></tr>
+          <tr><td><code>return_5d</code></td><td>DOUBLE</td><td>5営業日リターン (%)</td></tr>
+          <tr><td><code>return_21d</code></td><td>DOUBLE</td><td>21営業日リターン (%)</td></tr>
+          <tr><td><code>volatility_20d</code></td><td>DOUBLE</td><td>20日ボラティリティ (標準偏差)</td></tr>
+          <tr><td><code>high_52w</code></td><td>DOUBLE</td><td>52週高値</td></tr>
+          <tr><td><code>low_52w</code></td><td>DOUBLE</td><td>52週安値</td></tr>
+          <tr><td><code>dist_from_high_52w</code></td><td>DOUBLE</td><td>52週高値からの乖離率 (%)</td></tr>
+          <tr><td><code>volume_ma5</code></td><td>DOUBLE</td><td>出来高5日移動平均</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-success">
+      <div class="callout-title">パイプライン完成</div>
+      ここまで完了すれば、J-Quants API → Bronze → Silver → Gold → Dashboard / Genie の
+      全パイプラインが動作する状態です。お疲れ様でした！
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // ── Theme toggle ──────────────────────────────────────
+  function toggleTheme() {
+    const root = document.documentElement;
+    const current = root.getAttribute('data-theme');
+    if (!current) {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      root.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    } else {
+      root.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    }
+  }
+
+  // ── Copy button ───────────────────────────────────────
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    navigator.clipboard.writeText(pre.textContent.trim()).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 1800);
+    });
+  }
+
+  // ── Active nav highlight on scroll ───────────────────
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a[href^="#"]');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const active = document.querySelector(`nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
