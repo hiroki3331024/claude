@@ -20,28 +20,12 @@ class JQuantsClient:
 
     BASE_URL = "https://api.jquants.com/v1"
 
-    def __init__(self, email: Optional[str] = None, password: Optional[str] = None):
-        cfg = load_config()
-        self.email = email or cfg["jquants"]["email"]
-        self.password = password or cfg["jquants"]["password"]
-        self._refresh_token: Optional[str] = None
+    def __init__(self, refresh_token: Optional[str] = None):
+        self._refresh_token: Optional[str] = refresh_token
         self._id_token: Optional[str] = None
         self._token_expires_at: float = 0.0
 
     # ── 認証 ───────────────────────────────────────────────────────────────
-
-    @retry(max_attempts=3, wait_seconds=5)
-    def _get_refresh_token(self) -> str:
-        url = f"{self.BASE_URL}/token/auth_user"
-        resp = requests.post(
-            url,
-            json={"mailaddress": self.email, "password": self.password},
-            timeout=30,
-        )
-        resp.raise_for_status()
-        token = resp.json()["refreshToken"]
-        logger.info("Refresh token acquired")
-        return token
 
     @retry(max_attempts=3, wait_seconds=5)
     def _get_id_token(self, refresh_token: str) -> str:
@@ -60,7 +44,7 @@ class JQuantsClient:
         if time.time() < self._token_expires_at - 60:
             return
         if self._refresh_token is None:
-            self._refresh_token = self._get_refresh_token()
+            raise ValueError("refresh_token is not set. Pass it to JQuantsClient().")
         self._id_token = self._get_id_token(self._refresh_token)
         # ID token の有効期限は 24 時間
         self._token_expires_at = time.time() + 86400

@@ -3,7 +3,7 @@
 # MAGIC # 01 初回ロード: J-Quants API → Bronze → Silver → Gold
 # MAGIC
 # MAGIC **前提**
-# MAGIC - Databricks Secrets: `jquants/email`, `jquants/password` を登録済み
+# MAGIC - Databricks Secrets: `jquants/refresh_token` を登録済み
 # MAGIC - ライブラリ: `requirements.txt` を Cluster にインストール済み
 
 # COMMAND ----------
@@ -23,15 +23,13 @@ from src.gold.build_gold import GoldBuilder
 
 logger = get_logger("01_initial_load")
 
-# Databricks Secrets からクレデンシャル取得
-# （ローカルテスト時は環境変数 JQUANTS_EMAIL / JQUANTS_PASSWORD を使用）
+# Databricks Secrets から refreshToken 取得
+# （ローカルテスト時は環境変数 JQUANTS_REFRESH_TOKEN を使用）
 try:
-    email    = dbutils.secrets.get(scope="jquants", key="email")
-    password = dbutils.secrets.get(scope="jquants", key="password")
+    refresh_token = dbutils.secrets.get(scope="jquants", key="refresh_token")
 except Exception:
     import os
-    email    = os.environ["JQUANTS_EMAIL"]
-    password = os.environ["JQUANTS_PASSWORD"]
+    refresh_token = os.environ["JQUANTS_REFRESH_TOKEN"]
 
 DATE_FROM = get_date_n_years_ago(3)   # 3年前
 DATE_TO   = get_yesterday()
@@ -42,7 +40,7 @@ logger.info(f"Initial load: {DATE_FROM} → {DATE_TO}")
 # MAGIC %md ## 1. J-Quants API クライアント初期化
 
 # COMMAND ----------
-client = JQuantsClient(email=email, password=password)
+client = JQuantsClient(refresh_token=refresh_token)
 
 # COMMAND ----------
 # MAGIC %md ## 2. 上場銘柄情報取得 → Bronze
